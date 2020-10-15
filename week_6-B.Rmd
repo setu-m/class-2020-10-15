@@ -46,6 +46,15 @@ tibble(urn_red = seq(100, 700, by = 100)) %>%
 
 Interpret the meaning of the graphic.
 
+```{r}
+tibble(urn_red = seq(1, 1000, by = 1)) %>% 
+  mutate(paddle_red = map(urn_red, ~ rbinom(n = 100, size = 25, prob = ./1000))) %>% 
+  unnest(paddle_red) %>%
+  ggplot(aes(paddle_red, urn_red)) +
+  geom_point(alpha = .1)
+
+
+```
 
 
 
@@ -53,6 +62,16 @@ Interpret the meaning of the graphic.
 
 **Prompt:** Using the joint distribution we calculated in Scene 5 as input, calculate your posterior probability density for the number of red beads in the urn, given that that 10 red were sampled in our paddle of 25.
 
+```{r}
+tibble(urn_red = seq(1, 1000, by = 1)) %>% 
+  mutate(paddle_red = map(urn_red, ~ rbinom(n = 100, size = 25, prob = ./1000))) %>% 
+  unnest(paddle_red) %>%
+  filter(paddle_red == 10) %>%
+  group_by(urn_red) %>%
+  summarize(total = n(), .groups = "drop") %>%
+  mutate(poster = total/sum(total))
+
+```
 
 
 
@@ -60,5 +79,12 @@ Interpret the meaning of the graphic.
 
 **Prompt:** With our posterior probability distribution, we can now forecast outcomes which we have not yet seen. For example, what is the probability of getting more than 3 reds if we sample 20 from the urn, given our posterior? (That is, we are pretending that we don't know the number of red beads in the urn.)
 
+```{r}
+tibble(urn_red = seq(1, 1000, by = 1)) %>% 
+  mutate(paddle_red = map(urn_red, ~ rbinom(n = 100, size = 20, prob = ./1000))) %>% 
+  unnest(paddle_red) %>%
+  mutate(res = ifelse(paddle_red > 20, TRUE, FALSE)) %>% 
+  summarise(final = weighted.mean(res, prob)) 
 
+```
 
